@@ -8,7 +8,7 @@ public class Main {
     private static class Solution {
         private final int n;
         private final boolean[][] friends;
-        private final boolean[] visited = new boolean[10];
+        private final boolean[] taken = new boolean[10];
 
         Solution(int n, boolean[][] friends) {
             this.n = n;
@@ -16,23 +16,29 @@ public class Main {
         }
 
         private int solve() {
-            return maxRelation(0, 0);
+            return maxRelation();
         }
 
-        private int maxRelation(int i, int c) {
-            if (c == n) return 1;
-            int ret = 0;
-            for (int j = i + 1; j < n; j++) {
-                if (visited[j]) continue;
-                if (!friends[i][j]) continue;
-                if (c == n - 2) return 1;
-                visited[i] = visited[j] = true;
-                for (int k = i + 1; k < n; k++) {
-                    if (visited[k]) continue;
-                    ret += maxRelation(k, c + 2);
+        private int maxRelation() {
+            int firstFree = -1;
+            for (int i = 0; i < n; i++) {
+                if (!taken[i]) {
+                    firstFree = i;
+                    break;
                 }
-                visited[i] = visited[j] = false;
             }
+
+            if (firstFree == -1) return 1;
+
+            int ret = 0;
+            for (int i = firstFree + 1; i < n; i++) {
+                if (!taken[i] && friends[firstFree][i]) {
+                    taken[firstFree] = taken[i] = true;
+                    ret += solve();
+                    taken[firstFree] = taken[i] = false;
+                }
+            }
+
             return ret;
         }
     }
